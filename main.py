@@ -5,6 +5,7 @@ from googleapiclient import discovery
 import json
 import aiohttp
 import random
+import secrets
 
 from keep_alive import keep_alive
 intents = discord.Intents.default()
@@ -158,13 +159,40 @@ async def on_message(message):
                 res = await r.json()
                 emojis = [':dog: ', ':dog2: ']
                 await message.channel.send(random.choice(emojis) + res['message'])
+                
+    if message.content == "tell me a joke":
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://v2.jokeapi.dev/joke/Any?type=single') as r:
+                res = await r.json()
+                emojis = [':speech_left:  ']
+                await message.channel.send(random.choice(emojis) + res['joke'])
 
+    if message.content == "ip":
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://api.ipgeolocation.io/ipgeo?apiKey=78a1ccc7c8dd40f8ad8973953a3d14e6') as r:
+                res = await r.json()
+                emojis = [':speech_left:  ']
+                await message.channel.send(random.choice(emojis) + res['city'])
+                
     if message.content == "!countdown":
         countdown = ['five', 'four', 'three', 'two', 'one']
         for num in countdown:
             await message.channel.send('**:{0}:**'.format(num))
             await asyncio.sleep(1)
         await message.channel.send('**:ok:** BOOM')
+
+    if message.content == "!flipcoin":
+        coinsides = ["Heads", "Tails"]
+        await message.channel.send(f"**{message.author.name}** flipped a coin and got **{random.choice(coinsides)}**!")
+
+    if message.content == "!genpass":
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://www.passwordrandom.com/query?command=password&format=json&count=1') as r:
+                res = await r.json()
+                for i in res.values():
+                  pass
+                emojis = [':key: ', ':key2: ']
+                await message.channel.send(f"{random.choice(emojis)}{i}")
 
 keep_alive()
 client.loop.create_task(update_stats())
