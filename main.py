@@ -1,3 +1,4 @@
+import os
 import discord
 import time
 import asyncio
@@ -16,14 +17,9 @@ intents = discord.Intents(messages=True, guilds=True, members=True)
 
 messages = joined = 0
 
+my_secret = os.environ['TOKEN']
+my_secret2 = os.environ['api']
 
-def read_token():
-    with open("token.txt", "r") as f:
-        lines = f.readlines()
-        return lines[0].strip()
-
-
-token = read_token()
 
 client = discord.Client()
 
@@ -74,7 +70,7 @@ async def on_message(message):
     valid_users = ["TUDU#4367", "TuDu#5206", "0xKage#5206"]
 
     if (message.author.id != client.user.id):
-        API_KEY = 'AIzaSyCq17LT42MhHnGO0MIwSymviKVz3m9vFMI'
+        API_KEY = (my_secret2)
         clientGoogle = discovery.build(
             "commentanalyzer",
             "v1alpha1",
@@ -125,6 +121,12 @@ async def on_message(message):
         embed.add_field(name="hello", value="Greets the user")
         embed.add_field(name="!users", value="Prints number of users")
         embed.add_field(name="!shutdown", value="Shut Down the Bot")
+        embed.add_field(name="!cats", value="Post Random cat Picture")
+        embed.add_field(name="!dogs", value="Post Random dog Picture")
+        embed.add_field(name="!flipcoin", value="Flip a coin for the user")
+        embed.add_field(name="tell me a joke", value="Post a random joke")
+        embed.add_field(name="!countdown", value="Bot Countdown From 5 to 1")
+        embed.add_field(name="!genpass", value="Generate a Random Password and send to user")
         await message.channel.send(content=None, embed=embed)
 
 #hello
@@ -139,7 +141,7 @@ async def on_message(message):
 
 #shutdown
     if message.content.find(
-            "!shutdown") != -1 and message.author in valid_users:
+            "!shutdown") != -1:
         embed = discord.Embed(description="Shutting down. Bye! :wave:",
                               color=0x00FF00)
         await message.channel.send(content=None, embed=embed)
@@ -167,12 +169,12 @@ async def on_message(message):
                 emojis = [':speech_left:  ']
                 await message.channel.send(random.choice(emojis) + res['joke'])
 
-    if message.content == "ip":
+    if message.content == "!ip":
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://api.ipgeolocation.io/ipgeo?apiKey=78a1ccc7c8dd40f8ad8973953a3d14e6') as r:
                 res = await r.json()
                 emojis = [':speech_left:  ']
-                await message.channel.send(random.choice(emojis) + res['city'])
+                await message.channel.send(random.choice(emojis) + res['ip'])
                 
     if message.content == "!countdown":
         countdown = ['five', 'four', 'three', 'two', 'one']
@@ -189,11 +191,19 @@ async def on_message(message):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://www.passwordrandom.com/query?command=password&format=json&count=1') as r:
                 res = await r.json()
+                username = message.author.name
+                userID = message.author.id
                 for i in res.values():
                   pass
                 emojis = [':key: ', ':key2: ']
-                await message.channel.send(f"{random.choice(emojis)}{i}")
+                await message.author.send(f"{random.choice(emojis)}{i}")
+            embed = discord.Embed(
+                description=
+                " <@%s> A Random Password has been Generated and Sent to your DM."
+                % (userID),
+                color=0x00FF00)
+            await message.channel.send(content=None, embed=embed)
 
 keep_alive()
 client.loop.create_task(update_stats())
-client.run(token)
+client.run(my_secret)
